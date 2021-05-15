@@ -127,15 +127,13 @@
 
 \begin{center}\large
 \begin{tabular}{ll}
-\textbf{Grupo} nr. & 999 (preencher)
+\textbf{Grupo} nr. & 74
 \\\hline
-a11111 & Nome1 (preencher)
+a93269 & Inês Oliveira Anes Vicente
 \\
-a22222 & Nome2 (preencher)
+a93308 & Jorge Miguel Silva Melo
 \\
-a33333 & Nome3 (preencher)
-\\
-a44444 & Nome4 (preencher, se aplicável, ou apagar)
+a93280 & Miguel Ângelo Machado Martins
 \end{tabular}
 \end{center}
 
