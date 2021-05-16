@@ -358,7 +358,7 @@ baseExpAr f g h j k l z = f -|- (g -|- (h >< (j >< k) -|- l >< z))
   \begin{propriedade}
     |inExpAr| e |outExpAr| são testemunhas de um isomorfismo,
     isto é,
-    |inExpAr . outExpAr = id| e |outExpAr . idExpAr = id|:
+    |inExpAr . outExpAr = id| e |outExpAr . inExpAr = id|:
 \begin{code}
 prop_in_out_idExpAr :: (Eq a) => ExpAr a -> Bool
 prop_in_out_idExpAr = inExpAr . outExpAr .==. id
@@ -1013,12 +1013,24 @@ sd = p2 . cataExpAr sd_gen
 ad :: Floating a => a -> ExpAr a -> a
 ad v = p2 . cataExpAr (ad_gen v)
 \end{code}
-Definir:
+Definir:                
 
 \begin{code}
-outExpAr = undefined
----
-recExpAr = undefined
+
+outExpAr X = i1()    
+outExpAr (N a) = i2(i1 a)
+outExpAr (Bin op a b) = i2(i2(i1(op,(a,b))))
+outExpAr (Un op a) = i2(i2(i2(op,a)))
+
+---Explicação dos diagramas depois do end code
+
+\end{code}
+
+\begin{code}
+recExpAr = undefined 
+--recExpAr anaExpAr a = 
+--recBTree g = baseBTree id g
+--recExpAr (anaExpAr g) = id -|- (anaExpAr g)
 ---
 g_eval_exp = undefined
 ---
