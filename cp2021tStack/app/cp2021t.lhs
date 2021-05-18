@@ -1027,10 +1027,13 @@ outExpAr (Un op a) = i2(i2(i2(op,a)))
 \end{code}
 
 \begin{code}
-recExpAr = undefined 
---recExpAr anaExpAr a = 
+--recExpAr = undefined 
+--baseExpAr f g h j k l z = f -|- (g -|- (h >< (j >< k) -|- l >< z))
+recExpAr f =  baseExpAr id id id f f id f
+
+--baseBTree f g = id -|- (f >< (g >< g))
 --recBTree g = baseBTree id g
---recExpAr (anaExpAr g) = id -|- (anaExpAr g)
+
 ---
 g_eval_exp = undefined
 ---
