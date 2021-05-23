@@ -1035,7 +1035,14 @@ recExpAr f =  baseExpAr id id id f f id f
 --recBTree g = baseBTree id g
 
 ---
-g_eval_exp = undefined
+g_eval_exp  x (Left ())  = x
+g_eval_exp  x (Right(Left a)) = a
+g_eval_exp  x (Right(Right(Left (op, (a, b)))))
+  |op == Sum = a + b
+  |op == Product = a * b 
+g_eval_exp  x (Right(Right(Right (op, a))))
+  |op == Negate = -a
+  |op == E = expd a
 ---
 clean = undefined
 ---
