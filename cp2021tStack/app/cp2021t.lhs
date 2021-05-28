@@ -191,6 +191,7 @@ o ``kit'' básico, escrito em \Haskell, para realizar o trabalho. Basta executar
 \begin{code}
 {-# OPTIONS_GHC -XNPlusKPatterns #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving, DeriveDataTypeable, FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Main where
 import Cp
 import List hiding (fac)
@@ -1035,18 +1036,47 @@ recExpAr f =  baseExpAr id id id f f id f
 --recBTree g = baseBTree id g
 
 ---
-g_eval_exp  x (Left ())  = x
-g_eval_exp  x (Right(Left a)) = a
-g_eval_exp  x (Right(Right(Left (op, (a, b)))))
+g_eval_exp x (Left ())  = x
+g_eval_exp x (Right(Left a)) = a
+g_eval_exp x (Right(Right(Left (op, (a, b)))))
   |op == Sum = a + b
   |op == Product = a * b 
-g_eval_exp  x (Right(Right(Right (op, a))))
+g_eval_exp x (Right(Right(Right (op, a))))
   |op == Negate = -a
   |op == E = expd a
+
 ---
-clean = undefined
----
-gopt = undefined
+---devolve um a, que é usado na anamorfismo???
+--clean = undefined 
+
+---inExpAr = either (const X) num_ops where
+---  num_ops = either N ops
+---  ops     = either bin (uncurry Un)
+---  bin(op, (a, b)) = Bin op a b
+
+
+
+clean = undefined 
+  
+---clean (N a) = N a
+---clean (Bin Product 0 b) = 0
+---clean (Bin Product a 0) = 0
+---clean (Bin Sum 0 b) = b
+---clean (Bin Sum a 0) = a
+---clean (Un E 0) = 1
+---clean (Un Negate a) = Un Negate a
+
+gopt x (Left ())  = x
+gopt x (Right(Left a)) = a
+gopt x (Right(Right(Left (op, (a, b)))))
+  |op == Sum = a + b
+  |op == Product && a == 0 = 0
+  |op == Product && b == 0 = 0
+  |otherwise = a * b
+gopt x (Right(Right(Right (op, a))))
+  |op == Negate = -a
+  |op == E && a == 0 = 1
+  |otherwise = expd a
 \end{code}
 
 \begin{code}
