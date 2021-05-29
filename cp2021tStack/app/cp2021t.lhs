@@ -1073,7 +1073,6 @@ sd_gen :: Floating a =>
 sd_gen  (Left()) = (X, (N 1))
 sd_gen  (Right(Left a)) = ((N a), (N 0))
 sd_gen  (Right (Right (Left (Sum, (a, b))))) = (Bin Sum (p1 a) (p1 b), Bin Sum (p2 a) (p2 b))
---sd_gen (Right (Right (Left (Sum, ((a1, a2), (b1, b2)))))) = ((Sum, (a1, b1)), (Sum, (a2 , b2))) 
 sd_gen  (Right (Right (Left (Product, (a, b))))) = (Bin Product (p1 a) (p1 b), Bin Sum fst_aux snd_aux)
     where fst_aux = Bin Product (p1 a) (p2 b)
           snd_aux = Bin Product (p2 a) (p1 b) 
@@ -1082,7 +1081,15 @@ sd_gen (Right (Right (Right (Negate, a)))) = (Un Negate (p1 a), Un Negate (p2 a)
 \end{code}
 
 \begin{code}
-ad_gen = undefined
+ad_gen pnt (Left()) = (X , 1)
+ad_gen pnt (Right(Left a)) = (X, 0)
+ad_gen pnt (Right(Right(Left (Sum, (a, b))))) = ( X , (p2 a) + (p2 b) )
+ad_gen pnt (Right(Right(Left (Product, (a, b))))) = (X , snd_aux )
+    where  --fst_aux = (eval_exp pnt (p1 a))*(p2 b)
+          ---snd_aux = (p2 a)
+          snd_aux = (eval_exp (p2 b) (p1 b))
+ad_gen pnt (Right(Right(Right (E, a)))) = ( X , (p2 a)*expd(eval_exp pnt (p1 a)) ) 
+ad_gen pnt (Right(Right(Right (Negate, a)))) = (X, -(p2 a))
 \end{code}
 
 \subsection*{Problema 2}
