@@ -41,7 +41,7 @@ somar a = cataNat (either (const a) succ)        -- for succ a
 
 multip a = cataNat (either (const 0) (a+))       -- for (a+) 0
 
-exp a = cataNat (either (const 1) (a*))          -- for (a*) 1
+exp a = cataNat (either (const 1) (a*))          -- for (a*) ii1
 
 -- (4.2) sq (square of a natural number) 
 

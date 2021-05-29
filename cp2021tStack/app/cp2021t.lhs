@@ -1082,14 +1082,14 @@ sd_gen (Right (Right (Right (Negate, a)))) = (Un Negate (p1 a), Un Negate (p2 a)
 
 \begin{code}
 ad_gen pnt (Left()) = (X , 1)
-ad_gen pnt (Right(Left a)) = (X, 0)
-ad_gen pnt (Right(Right(Left (Sum, (a, b))))) = ( X , (p2 a) + (p2 b) )
-ad_gen pnt (Right(Right(Left (Product, (a, b))))) = (X , snd_aux )
-    where  --fst_aux = (eval_exp pnt (p1 a))*(p2 b)
+ad_gen pnt (Right(Left a)) = (N a, 0)
+ad_gen pnt (Right(Right(Left (Sum, (a, b))))) = (Bin Sum (p1 a) (p1 b) , (p2 a) + (p2 b) )
+ad_gen pnt (Right(Right(Left (Product, (a, b))))) = (Bin Product (p1 a)(p1 b)  , fst_aux + snd_aux )
+    where fst_aux = (eval_exp pnt (p1 a))*(p2 b)
           ---snd_aux = (p2 a)
-          snd_aux = (eval_exp (p2 b) (p1 b))
-ad_gen pnt (Right(Right(Right (E, a)))) = ( X , (p2 a)*expd(eval_exp pnt (p1 a)) ) 
-ad_gen pnt (Right(Right(Right (Negate, a)))) = (X, -(p2 a))
+          snd_aux = (p2 a) * (eval_exp pnt (p1 b))
+ad_gen pnt (Right(Right(Right (E, a)))) = ( Un E (p1 a) , (p2 a)*expd(eval_exp pnt (p1 a)) ) 
+ad_gen pnt (Right(Right(Right (Negate, a)))) = (Un Negate (p1 a), -(p2 a))
 \end{code}
 
 \subsection*{Problema 2}
