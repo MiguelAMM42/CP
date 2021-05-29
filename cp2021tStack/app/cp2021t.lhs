@@ -191,7 +191,6 @@ o ``kit'' básico, escrito em \Haskell, para realizar o trabalho. Basta executar
 \begin{code}
 {-# OPTIONS_GHC -XNPlusKPatterns #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving, DeriveDataTypeable, FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
 module Main where
 import Cp
 import List hiding (fac)
@@ -1056,33 +1055,30 @@ g_eval_exp x (Right(Right(Right (op, a))))
 
 
 
-clean = undefined 
-  
----clean (N a) = N a
----clean (Bin Product 0 b) = 0
----clean (Bin Product a 0) = 0
----clean (Bin Sum 0 b) = b
----clean (Bin Sum a 0) = a
----clean (Un E 0) = 1
----clean (Un Negate a) = Un Negate a
+clean X = i1()    
+clean (N a) = i2(i1 a)
+clean (Bin op a b) | (op == Product) && ( a == N 0 || b == N 0) = i2(i1 0)
+                   | otherwise = i2(i2(i1(op,(a,b))))
+clean (Un op a) | (op == E) && (a == N 0) = i2(i1 1)
+                | otherwise = i2(i2(i2(op,a)))
 
-gopt x (Left ())  = x
-gopt x (Right(Left a)) = a
-gopt x (Right(Right(Left (op, (a, b)))))
-  |op == Sum = a + b
-  |op == Product && a == 0 = 0
-  |op == Product && b == 0 = 0
-  |otherwise = a * b
-gopt x (Right(Right(Right (op, a))))
-  |op == Negate = -a
-  |op == E && a == 0 = 1
-  |otherwise = expd a
+
+
+gopt x = g_eval_exp x
 \end{code}
 
 \begin{code}
 sd_gen :: Floating a =>
     Either () (Either a (Either (BinOp, ((ExpAr a, ExpAr a), (ExpAr a, ExpAr a))) (UnOp, (ExpAr a, ExpAr a)))) -> (ExpAr a, ExpAr a)
-sd_gen = undefined
+sd_gen  (Left()) = (X, (N 1))
+sd_gen  (Right(Left a)) = ((N a), (N 0))
+sd_gen  (Right (Right (Left (Sum, (a, b))))) = (Bin Sum (p1 a) (p1 b), Bin Sum (p2 a) (p2 b))
+--sd_gen (Right (Right (Left (Sum, ((a1, a2), (b1, b2)))))) = ((Sum, (a1, b1)), (Sum, (a2 , b2))) 
+sd_gen  (Right (Right (Left (Product, (a, b))))) = (Bin Product (p1 a) (p1 b), Bin Sum fst_aux snd_aux)
+    where fst_aux = Bin Product (p1 a) (p2 b)
+          snd_aux = Bin Product (p2 a) (p1 b) 
+sd_gen (Right (Right (Right (E, a)))) = ( Un E (p1 a) , Bin Product (Un E (p1 a)) (p2 a) )
+sd_gen (Right (Right (Right (Negate, a)))) = (Un Negate (p1 a), Un Negate (p2 a))
 \end{code}
 
 \begin{code}
