@@ -1092,9 +1092,9 @@ ad_gen pnt (Right(Right(Right (Negate, a)))) = (- (p1 a), -(p2 a))
 \subsection*{Problema 2}
 Definir
 \begin{code}
-loop = undefined
-inic = undefined
-prj = undefined
+loop (a, num, den) = ( a * num `div` den , 4 + num, 1 + den)   
+inic = (1, 2, 2)
+prj  (a, b, c) = a 
 \end{code}
 por forma a que
 \begin{code}
@@ -1108,8 +1108,9 @@ Apresentar de seguida a justificação da solução encontrada.
 
 \begin{code}
 calcLine :: NPoint -> (NPoint -> OverTime NPoint)
-calcLine = cataList h where
-   h = undefined
+calcLine p q d = (cataList h) $ (zip p q) where    
+    h (Left()) = []
+    h (Right((a1,a2), t)) = (++) (singl $ (linear1d a1 a2 d)) t
 
 deCasteljau :: [NPoint] -> OverTime NPoint
 deCasteljau = hyloAlgForm alg coalg where
@@ -1127,7 +1128,7 @@ avg = p1.avg_aux
 \end{code}
 
 \begin{code}
-avg_aux = undefined
+avg_aux = undefined--cataList (either id id)
 \end{code}
 Solução para árvores de tipo \LTree:
 \begin{code}
