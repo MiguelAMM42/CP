@@ -1195,20 +1195,40 @@ ginocanestene (h, (a, l)) = (h + (l * a)) / (l + 1)
 
 avg_aux :: [Double] -> (Double, Double)
 avg_aux = cataL_ex4 gene where--cataList (either id id)
-      gene = either (split (head . singl) (const 1)) (split ginocanestene (succ . p2 . p2)) 
-
---bSort xs = for bubble xs (length xs) where
---   bubble (x:y:xs)
---       | x > y = y : bubble (x:xs)
---       | otherwise = x : bubble (y:xs)
---   bubble x = x
-
+      gene = either (split id (const 1)) (split ginocanestene (succ . p2 . p2)) 
 
 \end{code}
 Solução para árvores de tipo \LTree:
 \begin{code}
-avgLTree = p1.cataLTree gene where
-   gene = undefined
+jnocanestene ((a1,l1),(a2,l2)) = (a1 * l1 + a2 * l2) / (l1 + l2 )
+
+--somaAux :: Double  -> Double  -> Double 
+--somaAux :: (((Double, Double), (Double, Double)) -> Double)-> (((Double, Double), (Double, Double)) -> Double)-> ((Double, Double), (Double, Double))-> Double 
+--somaAux a b = a + b
+
+avgLTree :: LTree Double -> Double
+avgLTree = p1.cataLTree gene
+gene = either (split id (const 1)) (split jnocanestene f) where
+    f = uncurry (+) . split (p2 . p2) (p2 . p1)
+    --liftM2 (+) a b where
+    --    a = p2 . p2
+    --    b = p2 . p1 
+
+
+l :: LTree Double
+l = (Fork ((Fork (Leaf 6, Leaf 3), (Fork (Leaf 5, Leaf 2)))))
+
+k :: LTree Double
+k = (Fork ((Fork (Leaf 16, Leaf 13), (Fork (Leaf 15, Leaf 12)))))
+
+j :: LTree Double
+j = (Fork ((Fork (l, k), (Fork (Leaf 50, Leaf 20)))))
+
+teste :: LTree Double 
+teste = (Fork ((Fork (Leaf 10, Leaf 30), (Fork (Leaf 50, Leaf 20)))))
+
+impar :: LTree Double 
+impar = Fork(Fork(Leaf 1,Fork(Leaf 1, Leaf 3)),Leaf 5) 
 \end{code}
 
 \subsection*{Problema 5}
