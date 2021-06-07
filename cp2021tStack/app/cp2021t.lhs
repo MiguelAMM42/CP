@@ -700,7 +700,7 @@ Verifique as suas funções testando a propriedade seguinte:
 A média de uma lista não vazia e de uma \LTree\ com os mesmos elementos coincide,
 a menos de um erro de 0.1 milésimas:
 \begin{code}
-prop_avg :: Ord a => [a] -> Property
+prop_avg :: [Double] -> Property
 prop_avg = nonempty .==>. diff .<=. const 0.000001 where
    diff l = avg l - (avgLTree . genLTree) l
    genLTree = anaLTree lsplit
@@ -1112,23 +1112,98 @@ calcLine p q d = (cataList h) $ (zip p q) where
     h (Left()) = []
     h (Right((a1,a2), t)) = (++) (singl $ (linear1d a1 a2 d)) t
 
-deCasteljau :: [NPoint] -> OverTime NPoint
-deCasteljau = hyloAlgForm alg coalg where
-   coalg = undefined
-   alg = undefined
+---deCasteljau :: [NPoint] -> OverTime NPoint
+---deCasteljau [] = nil
+---deCasteljau [p] = const p
+---deCasteljau l = \pt -> (calcLine (p pt) (q pt)) pt where
+---  p = deCasteljau (init l)
+---  q = deCasteljau (tail l)
 
-hyloAlgForm = undefined
+
+--deCasteljau :: [NPoint] -> OverTime NPoint
+--deCasteljau lst time = hyloAlgForm alg coalg where
+--   coalg = undefined 
+--   alg = undefined 
+--   ---alg (Right((a1,a2), t)) = (++) (singl $ (linear1d a1 a2 time)) t
+
+deCasteljau :: [NPoint] -> OverTime NPoint
+deCasteljau list time = hyloAlgForm alg coalg list where --hyloAlgForm alg coalg where      
+      coalg [] = i1 []
+      coalg [a] = i1 a
+      coalg list = i2 (p,q) where
+          p = init list
+          q = tail list
+      alg (Left a)  = a
+      alg (Right(p,q))  = calcLine p q time
+
+--p q d = (either singl func) where
+--    func p q d = calcLine p q d
+
+   --coalg = undefined
+   ----alg (Left()) = []
+   ----alg (Right(p,q)) = []
+--alg (Left a) = a
+--alg (Right(p,q)) = calcLine p q 1
+    ---alg p q d = calcLine p q d
+
+--auxiliar para
+--auxil :: [a] -> LTree a
+--auxil lst = anaLTree coalg lst
+--
+--teste_grande :: [[Rational]]
+--teste_grande = [[8,9],[8,4],[8,7]]
+--teste_pequeno :: [[Rational]]
+--teste_pequeno = [[2]]
+
+--coalg [a] = i1 a
+--coalg list = i2 (p,q) where
+--     p = init list
+--     q = tail list
+--   ---- (id -|- g2) . outList
+--  ---- g2 (x,t) = (p, q) where
+--  ----    p = x : init t
+--  ----    q = t
+
+hyloAlgForm  = hyloLTree     
+
+
 \end{code}
+
 
 \subsection*{Problema 4}
 
 Solução para listas não vazias:
 \begin{code}
-avg = p1.avg_aux
+
+avg = p1.avg_aux 
 \end{code}
 
 \begin{code}
-avg_aux = undefined--cataList (either id id)
+
+
+
+out_ex4 [a] = i1(a)
+out_ex4 (h:t) = i2(h,t)
+
+in_ex4 = either singl cons
+
+cataL_ex4 g = g . (recList (cataL_ex4 g)) . out_ex4 
+
+ginocanestene (h, (a, l)) = (h + (l * a)) / (l + 1)
+
+-- sada(h, (l, a)) = ((h + (l * a)) / (l + 1), succ)
+
+avg_aux :: [Double] -> (Double, Double)
+avg_aux = cataL_ex4 gene where--cataList (either id id)
+      gene = either (split (head . singl) (const 1)) (split ginocanestene (succ . p2 . p2)) 
+
+--bSort xs = for bubble xs (length xs) where
+--   bubble (x:y:xs)
+--       | x > y = y : bubble (x:xs)
+--       | otherwise = x : bubble (y:xs)
+--   bubble x = x
+
+
 \end{code}
 Solução para árvores de tipo \LTree:
 \begin{code}
