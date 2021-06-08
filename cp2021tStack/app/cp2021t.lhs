@@ -100,6 +100,7 @@
 %format (anaLTree (x)) = "\mathopen{[\!(}" x "\mathclose{)\!]}"
 %format delta = "\Delta "
 
+
 %---------------------------------------------------------------------------
 
 \title{
@@ -358,7 +359,7 @@ baseExpAr f g h j k l z = f -|- (g -|- (h >< (j >< k) -|- l >< z))
   \begin{propriedade}
     |inExpAr| e |outExpAr| são testemunhas de um isomorfismo,
     isto é,
-    |inExpAr . outExpAr = id| e |outExpAr . inExpAr = id|:
+    |inExpAr . outExpAr = id| e |outExpAr . idExpAr = id|:
 \begin{code}
 prop_in_out_idExpAr :: (Eq a) => ExpAr a -> Bool
 prop_in_out_idExpAr = inExpAr . outExpAr .==. id
@@ -700,7 +701,7 @@ Verifique as suas funções testando a propriedade seguinte:
 A média de uma lista não vazia e de uma \LTree\ com os mesmos elementos coincide,
 a menos de um erro de 0.1 milésimas:
 \begin{code}
-prop_avg :: [Double] -> Property
+prop_avg :: [Double ]-> Property
 prop_avg = nonempty .==>. diff .<=. const 0.000001 where
    diff l = avg l - (avgLTree . genLTree) l
    genLTree = anaLTree lsplit
@@ -1013,7 +1014,6 @@ sd = p2 . cataExpAr sd_gen
 ad :: Floating a => a -> ExpAr a -> a
 ad v = p2 . cataExpAr (ad_gen v)
 \end{code}
-Definir:                
 
 \begin{code}
 
@@ -1022,19 +1022,17 @@ outExpAr (N a) = i2(i1 a)
 outExpAr (Bin op a b) = i2(i2(i1(op,(a,b))))
 outExpAr (Un op a) = i2(i2(i2(op,a)))
 
----Explicação dos diagramas depois do end code
+\end{code}
+
+
+\begin{code}
+
+recExpAr f =  baseExpAr id id id f f id f
 
 \end{code}
 
 \begin{code}
---recExpAr = undefined 
---baseExpAr f g h j k l z = f -|- (g -|- (h >< (j >< k) -|- l >< z))
-recExpAr f =  baseExpAr id id id f f id f
 
---baseBTree f g = id -|- (f >< (g >< g))
---recBTree g = baseBTree id g
-
----
 g_eval_exp x (Left ())  = x
 g_eval_exp x (Right(Left a)) = a
 g_eval_exp x (Right(Right(Left (op, (a, b)))))
@@ -1044,16 +1042,9 @@ g_eval_exp x (Right(Right(Right (op, a))))
   |op == Negate = -a
   |op == E = expd a
 
----
----devolve um a, que é usado na anamorfismo???
---clean = undefined 
+\end{code}
 
----inExpAr = either (const X) num_ops where
----  num_ops = either N ops
----  ops     = either bin (uncurry Un)
----  bin(op, (a, b)) = Bin op a b
-
-
+\begin{code}
 
 clean X = i1()    
 clean (N a) = i2(i1 a)
@@ -1062,12 +1053,17 @@ clean (Bin op a b) | (op == Product) && ( a == N 0 || b == N 0) = i2(i1 0)
 clean (Un op a) | (op == E) && (a == N 0) = i2(i1 1)
                 | otherwise = i2(i2(i2(op,a)))
 
+\end{code}
 
+
+\begin{code}
 
 gopt x = g_eval_exp x
+
 \end{code}
 
 \begin{code}
+
 sd_gen :: Floating a =>
     Either () (Either a (Either (BinOp, ((ExpAr a, ExpAr a), (ExpAr a, ExpAr a))) (UnOp, (ExpAr a, ExpAr a)))) -> (ExpAr a, ExpAr a)
 sd_gen  (Left()) = (X, (N 1))
@@ -1078,6 +1074,7 @@ sd_gen  (Right (Right (Left (Product, (a, b))))) = (Bin Product (p1 a) (p1 b), B
           snd_aux = Bin Product (p2 a) (p1 b) 
 sd_gen (Right (Right (Right (E, a)))) = ( Un E (p1 a) , Bin Product (Un E (p1 a)) (p2 a) )
 sd_gen (Right (Right (Right (Negate, a)))) = (Un Negate (p1 a), Un Negate (p2 a))
+
 \end{code}
 
 \begin{code}
@@ -1087,18 +1084,23 @@ ad_gen pnt (Right(Right(Left (Sum, (a, b))))) = ((p1 a) + (p1 b) , (p2 a) + (p2 
 ad_gen pnt (Right(Right(Left (Product, (a, b))))) = ((p1 a) * (p1 b) , ((p1 a) * (p2 b)) + ((p2 a) * (p1 b)))
 ad_gen pnt (Right(Right(Right (E, a)))) = ( expd(p1 a) , (p2 a)*expd((p1 a))) 
 ad_gen pnt (Right(Right(Right (Negate, a)))) = (- (p1 a), -(p2 a))
+
 \end{code}
 
 \subsection*{Problema 2}
 Definir
+
 \begin{code}
 loop (a, num, den) = ( a * num `div` den , 4 + num, 1 + den)   
 inic = (1, 2, 2)
 prj  (a, b, c) = a 
 \end{code}
+
 por forma a que
+
 \begin{code}
 cat = prj . (for loop inic)
+
 \end{code}
 seja a função pretendida.
 \textbf{NB}: usar divisão inteira.
@@ -1107,27 +1109,19 @@ Apresentar de seguida a justificação da solução encontrada.
 \subsection*{Problema 3}
 
 \begin{code}
+
 calcLine :: NPoint -> (NPoint -> OverTime NPoint)
 calcLine p q d = (cataList h) $ (zip p q) where    
     h (Left()) = []
     h (Right((a1,a2), t)) = (++) (singl $ (linear1d a1 a2 d)) t
 
----deCasteljau :: [NPoint] -> OverTime NPoint
----deCasteljau [] = nil
----deCasteljau [p] = const p
----deCasteljau l = \pt -> (calcLine (p pt) (q pt)) pt where
----  p = deCasteljau (init l)
----  q = deCasteljau (tail l)
+\end{code}
 
 
---deCasteljau :: [NPoint] -> OverTime NPoint
---deCasteljau lst time = hyloAlgForm alg coalg where
---   coalg = undefined 
---   alg = undefined 
---   ---alg (Right((a1,a2), t)) = (++) (singl $ (linear1d a1 a2 time)) t
+\begin{code}
 
 deCasteljau :: [NPoint] -> OverTime NPoint
-deCasteljau list time = hyloAlgForm alg coalg list where --hyloAlgForm alg coalg where      
+deCasteljau list time = hyloAlgForm alg coalg list where 
       coalg [] = i1 []
       coalg [a] = i1 a
       coalg list = i2 (p,q) where
@@ -1136,36 +1130,11 @@ deCasteljau list time = hyloAlgForm alg coalg list where --hyloAlgForm alg coalg
       alg (Left a)  = a
       alg (Right(p,q))  = calcLine p q time
 
---p q d = (either singl func) where
---    func p q d = calcLine p q d
+\end{code}
 
-   --coalg = undefined
-   ----alg (Left()) = []
-   ----alg (Right(p,q)) = []
---alg (Left a) = a
---alg (Right(p,q)) = calcLine p q 1
-    ---alg p q d = calcLine p q d
 
---auxiliar para
---auxil :: [a] -> LTree a
---auxil lst = anaLTree coalg lst
---
---teste_grande :: [[Rational]]
---teste_grande = [[8,9],[8,4],[8,7]]
---teste_pequeno :: [[Rational]]
---teste_pequeno = [[2]]
-
---coalg [a] = i1 a
---coalg list = i2 (p,q) where
---     p = init list
---     q = tail list
---   ---- (id -|- g2) . outList
---  ---- g2 (x,t) = (p, q) where
---  ----    p = x : init t
---  ----    q = t
-
+\begin{code}
 hyloAlgForm  = hyloLTree     
-
 
 \end{code}
 
@@ -1176,60 +1145,81 @@ Solução para listas não vazias:
 \begin{code}
 
 avg = p1.avg_aux 
+
 \end{code}
 
+
 \begin{code}
-
-
 
 out_ex4 [a] = i1(a)
 out_ex4 (h:t) = i2(h,t)
 
+\end{code}
+
+
+
+\begin{code}
 in_ex4 = either singl cons
 
+\end{code}
+
+
+
+\begin{code}
 cataL_ex4 g = g . (recList (cataL_ex4 g)) . out_ex4 
 
-ginocanestene (h, (a, l)) = (h + (l * a)) / (l + 1)
+\end{code}
 
--- sada(h, (l, a)) = ((h + (l * a)) / (l + 1), succ)
+
+
+\begin{code}
 
 avg_aux :: [Double] -> (Double, Double)
-avg_aux = cataL_ex4 gene where--cataList (either id id)
-      gene = either (split id (const 1)) (split ginocanestene (succ . p2 . p2)) 
+avg_aux = cataL_ex4 gene where
+      gene = either (split id (const 1)) (split aux_split (succ . p2 . p2)) 
+      aux_split (h, (a, l)) = (h + (l * a)) / (l + 1)
 
 \end{code}
-Solução para árvores de tipo \LTree:
-\begin{code}
-jnocanestene ((a1,l1),(a2,l2)) = (a1 * l1 + a2 * l2) / (l1 + l2 )
 
---somaAux :: Double  -> Double  -> Double 
---somaAux :: (((Double, Double), (Double, Double)) -> Double)-> (((Double, Double), (Double, Double)) -> Double)-> ((Double, Double), (Double, Double))-> Double 
---somaAux a b = a + b
+
+
+Solução para árvores de tipo \LTree:
+
+
+\begin{code}
 
 avgLTree :: LTree Double -> Double
 avgLTree = p1.cataLTree gene
-gene = either (split id (const 1)) (split jnocanestene f) where
+gene = either (split id (const 1)) (split aux_split f) where
     f = uncurry (+) . split (p2 . p2) (p2 . p1)
-    --liftM2 (+) a b where
+    aux_split ((a1,l1),(a2,l2)) = (a1 * l1 + a2 * l2) / (l1 + l2 )
+    
+\end{code}
+
+
+%if False
+
+--liftM2 (+) a b where
     --    a = p2 . p2
     --    b = p2 . p1 
 
+--l :: LTree Double
+--l = (Fork ((Fork (Leaf 6, Leaf 3), (Fork (Leaf 5, Leaf 2)))))
 
-l :: LTree Double
-l = (Fork ((Fork (Leaf 6, Leaf 3), (Fork (Leaf 5, Leaf 2)))))
+--k :: LTree Double
+--k = (Fork ((Fork (Leaf 16, Leaf 13), (Fork (Leaf 15, Leaf 12)))))
 
-k :: LTree Double
-k = (Fork ((Fork (Leaf 16, Leaf 13), (Fork (Leaf 15, Leaf 12)))))
+--j :: LTree Double
+--j = (Fork ((Fork (l, k), (Fork (Leaf 50, Leaf 20)))))
 
-j :: LTree Double
-j = (Fork ((Fork (l, k), (Fork (Leaf 50, Leaf 20)))))
+--teste :: LTree Double 
+--teste = (Fork ((Fork (Leaf 10, Leaf 30), (Fork (Leaf 50, Leaf 20)))))
 
-teste :: LTree Double 
-teste = (Fork ((Fork (Leaf 10, Leaf 30), (Fork (Leaf 50, Leaf 20)))))
+--impar :: LTree Double 
+--impar = Fork(Fork(Leaf 1,Fork(Leaf 1, Leaf 3)),Leaf 5) 
 
-impar :: LTree Double 
-impar = Fork(Fork(Leaf 1,Fork(Leaf 1, Leaf 3)),Leaf 5) 
-\end{code}
+%endif
+
 
 \subsection*{Problema 5}
 Inserir em baixo o código \Fsharp\ desenvolvido, entre \verb!\begin{verbatim}! e \verb!\end{verbatim}!:
