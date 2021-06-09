@@ -1259,6 +1259,174 @@ gene = either (split id (const 1)) (split aux_split f) where
 \subsection*{Problema 5}
 Inserir em baixo o código \Fsharp\ desenvolvido, entre \verb!\begin{verbatim}! e \verb!\end{verbatim}!:
 
+module BTree
+
+open Cp
+
+// (1) Datatype definition -----------------------------------------------------
+
+type BTree<'a> = Empty | Node of 'a * (BTree<'a> * BTree<'a>)
+
+let inBTree x = either (konst Empty) Node x
+
+let outBTree x =
+    match x with
+    | Empty -> i1()
+    | Node (a,(t1,t2)) -> i2 (a,(t1,t2))
+
+// (2) Ana + cata + hylo -------------------------------------------------------
+
+let baseBTree f g = id -|- (f >< (g >< g))
+
+let recBTree g = baseBTree id g
+
+let rec cataBTree g = g << (recBTree (cataBTree g)) << outBTree
+
+let rec anaBTree g = inBTree << (recBTree (anaBTree g) ) << g
+
+let hyloBTree h g = cataBTree h << anaBTree g
+
+// (3) Map ---------------------------------------------------------------------
+
+//instance Functor BTree
+//         where fmap f = cataBTree ( inBTree . baseBTree f id )
+let fmap f = cataBTree ( inBTree << baseBTree f id )
+
+// (4) Examples ----------------------------------------------------------------
+
+// (4.0) Inversion (mirror) ----------------------------------------------------
+
+let invBTree x = cataBTree (inBTree << (id -|- (id >< swap))) x
+
+// (4.2) Counting --------------------------------------------------------------
+
+let countBTree x = cataBTree (either (konst 0) (succ << (uncurry (+)) << p2)) x
+
+// (4.3) Serialization ---------------------------------------------------------
+
+let inord x =
+    let join (x , (l , r)) = l @ [x] @ r
+    in (either nil join) x
+
+let inordt x = cataBTree inord x
+
+let preord x = 
+    let f (x , (l , r)) = x :: l @ r
+    in (either nil f) x
+
+let preordt x = cataBTree preord x // pre-order traversal
+    
+let postordt x =
+    let f (x , (l , r)) = l @ r @ [x]
+    in cataBTree (either nil f) x
+
+// (4.4) Quicksort -------------------------------------------------------------
+
+let rec part p x =
+    match x with
+    | [] -> ([],[])
+    | (h::t) -> if (p h) then let (s,l) = part p t in ((h::s),l) else let (s,l) = part p t in (s,(h::l))
+
+let less h x = (if (x < h) then true else false)
+
+let qsep x =
+    match x with
+    | [] -> i1()
+    | (h::t) -> let (s,l) = part (less h) t in i2 (h,(s,l))
+
+let qSort x = hyloBTree inord qsep x
+
+// (4.5) Traces ----------------------------------------------------------------
+
+let rec init x =
+    match x with
+    | [] -> []
+    | (h::t) -> [h] @ (init t)
+
+let rec last x =
+    match x with
+    | [a] -> a
+    | (h::t) -> last t
+
+let rec isOnList x =
+    match x with
+    | (b , []) -> false
+    | (b , (h::t)) -> if (b = h) then true else isOnList (b , t)
+
+let rec union x =
+    match x with
+    | ([] , a) -> a
+    | (a , []) -> a
+    | (a , b) -> if (isOnList ((last b) , a)) then (union (a , (init b))) else ((union (a , (init b))) @ [(last b)])
+
+let headbtl a l = (a::l)
+
+let tunion (a,(l,r)) = union ((List.map (headbtl a) l) , (List.map (headbtl a) r))
+
+let traces x = cataBTree (either (konst [[]]) tunion) x
+ 
+// (4.6) Towers of Hanoi -------------------------------------------------------
+
+// pointwise:
+// hanoi(d,0) = []
+// hanoi(d,n+1) = (hanoi (not d,n)) ++ [(n,d)] ++ (hanoi (not d, n))
+
+let strategy x =
+    match x with
+    | (d,0) -> i1 ()
+    | (d,n) -> i2 ((n,d),((not d,(n-1)),(not d,(n-1))))
+
+let present x = inord x
+
+let hanoi x = hyloBTree present strategy x
+
+// (5) Depth and balancing (using mutual recursion) --------------------------
+
+let f((b1,d1),(b2,d2)) = ((b1,b2),(d1,d2))
+
+let h(a,((b1,b2),(d1,d2))) = (b1 && b2 && abs(d1-d2)<=1,1+max d1 d2)
+
+let baldepth x = 
+    let g x = either (konst(true,1)) (h << (id><f)) x 
+    in cataBTree g x
+
+let balBTree x = (p1 << baldepth) x
+
+let depthBTree x = (p2 << baldepth) x
+
+// (6) Going polytipic -------------------------------------------------------
+
+// natural transformation from base functor to monoid
+//let tnat f =
+//    let theta = uncurry (<>)
+//    in either (konst mempty) (theta << (f >< theta))
+//
+// monoid reduction 
+//
+//let monBTree f = cataBTree (tnat f)
+
+// alternative to (4.2) serialization ----------------------------------------
+
+//let preordt' x = monBTree singl x
+
+// alternative to (4.1) counting ---------------------------------------------
+
+//let countBTree' x = monBTree (konst (Sum 1)) x
+
+// (7) Zipper ----------------------------------------------------------------
+
+//type Deriv<'a> = Dr of Bool 'a BTree<'a>
+//
+//type Zipper<'a> = [ Deriv<'a> ]
+//
+//let rec plug x t =
+//    match x with
+//    | [] -> t
+//    | ((Dr false a l)::z) = Node (a,(plug z t,l))
+//    | ((Dr true a r)::z) = Node (a,(r,plug z t))
+//
+//-------------------------- end of library ----------------------------------
+
 \begin{verbatim}
 \end{verbatim}
 
