@@ -1,6 +1,7 @@
 \documentclass[a4paper]{article}
 \usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
 \usepackage{palatino}
+\usepackage{amsmath}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
 \usepackage{graphicx}
 \usepackage{cp2021t}
@@ -1090,7 +1091,41 @@ ad_gen pnt (Right(Right(Right (Negate, a)))) = (- (p1 a), -(p2 a))
 \subsection*{Problema 2}
 Definir
 
+
+Primeiramente, vamos tentar buscar uma relação entre o \emph{n}-ésimo valor de Catalon e o seu (\emph{n+1})-ésimo valor: \\
+\begin{flalign}
+        &\ \cfrac{C_{n+1}}{C_n} = \cfrac{\frac{(2(\emph{n}+1))!}{(\emph{n} + 2)!(\emph{n}+1)!}} {\frac{(2\emph{n})!}{(\emph{n}+1)!(\emph{n})!}}\notag\\
+        \equiv&\notag\\
+        &\ \cfrac{C_{n+1}}{C_n} = \frac{(2(n+1))!(\emph{n})!}{(\emph{n}+2)!(2\emph{n})!}\notag\\
+        \equiv\notag\\  
+        &\ \cfrac{C_{n+1}}{C_n} = \frac{(2\emph{n}+2)(2\emph{n}+1)(2\emph{n})!(\emph{n})!}{(\emph{n}+2)(\emph{n}+1)(\emph{n})!(2\emph{n})!}\notag\\
+        \equiv\notag&\\
+        &\ \cfrac{C_{n+1}}{C_n} = \frac{(2\emph{n}+2)(2\emph{n}+1)}{(\emph{n}+2)(\emph{n}+1)}\notag\\ 
+        \equiv\notag&\\
+        &\ \cfrac{C_{n+1}}{C_n} = \frac{2(\emph{n}+1)(2\emph{n}+1)}{(\emph{n}+2)(\emph{n}+1)}\notag\\
+        \equiv\notag&\\
+        &\ \cfrac{C_{n+1}}{C_n} = \frac{4\emph{n}+2}{\emph{n}+2}\notag\\
+        \equiv\notag&\\
+        &C_{n+1} = \frac{4\emph{n}+2}{\emph{n}+2} C_n\notag&
+\end{flalign}
+
+Tendo chegado a esta expressão, podemos agora dividir a equação entre 2 outras:\\
+
+\begin{flalign}
+&c(0) = 1&\notag\\
+&c(n+1) = \frac{4\emph{n}+2}{\emph{n}+2} c(n)\notag&\\\notag\\\notag
+&num(\emph{n}) = 4\emph{n} + 2&\notag\\
+&num(0) = 2&\notag\\
+&num(\emph{n+1}) = 4(\emph{n}+1) + 2 = 4 + num(\emph{n})\notag&\\\notag\\\notag
+&den(\emph{n}) = \emph{n} + 2\notag&\\
+&den(0) = 2&\notag\\
+&den(\emph{n+1}) = (\emph{n}+3) = 1 + den(\emph{n})\notag&
+\end{flalign}
+\\
+Pela \emph{regra da algibeira}, teremos:
+
 \begin{code}
+
 loop (a, num, den) = ( a * num `div` den , 4 + num, 1 + den)   
 inic = (1, 2, 2)
 prj  (a, b, c) = a 
