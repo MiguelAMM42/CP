@@ -1183,6 +1183,8 @@ avg = p1.avg_aux
 
 \end{code}
 
+Para usarmos um catamorfismo para listas não vazias vamos criar uma definição que não use listas vazias:
+
 
 \begin{code}
 
@@ -1205,6 +1207,95 @@ cataL_ex4 g = g . (recList (cataL_ex4 g)) . out_ex4
 
 \end{code}
 
+\begin{eqnarray*}
+\start
+    |avg_aux = cata(either b q)|
+%
+\just\equiv{ |avg_aux:= split avg length; b = split b1 b2; q = split q1 q2| }
+%
+  |aplit avg length = cata (either (split b1 b2) (split q1 q2))|
+%
+\just\equiv{ Lei da troca }
+%
+  |split avg length = cata (split (either b1 q1) (either b2 q2))|
+%
+\just\equiv{ Fokkinga }
+%
+  \begin{lcbr}
+    |f . in = (either b1 q1) . (split f g)|\\
+    |g . in = (either b2 q2) . (split f g)|
+  \end{lcbr}
+%
+\just\equiv{ |in| := |either singl cons|; |F f| := |id + id >< f| }
+%
+  \begin{lcbr}
+    |avg . (either singl cons) = (either b1 q1) . (id + id >< (split avg length)|\\
+    |length . (either singl cons) = (either b2 q2) . (id + id >< (split avg length)|
+  \end{lcbr}
+%
+\just\equiv{ Fusão - + ; Absorção - +; Natural -id}
+%
+  \begin{lcbr}
+    |either (avg . singl) (avg . cons) = either b1 (q1 . (split p1 (split (avg . p2) (length . p2))))|\\
+    |either (length . singl) (length . cons) = either b2 (q2 . (split p1 (split (avg . p2) (length . p2))))|
+  \end{lcbr}
+% 
+\just\equiv{ Eq - + }
+%
+  \begin{lcbr}
+    \begin{lcbr}
+      |avg . singl = b1| \\
+      |avg . cons = q1 . (split p1 (split (avg . p2) (length . p2)))| 
+    \end{lcbr} \\
+    \begin{lcbr}
+      |length . singl = b2|\\
+      |length . cons = q2 . (split p1 (split (avg . p2) (length . p2)))|
+    \end{lcbr}
+  \end{lcbr}  
+%
+\just\equiv{ Def-comp(72) ; Introdução de variáveis ; Def - x ; Def-split ; Def-singl ; Def-cons}
+% 
+  \begin{lcbr}
+    \begin{lcbr}
+      |avg [x] = b1(x, xs)| \\
+      |avg (x:xs) = q1(p1(x, xs), (avg(p2(x,xs)), (length(p2(x,xs))))) | 
+    \end{lcbr} \\
+    \begin{lcbr}
+      |length [x] = b2(x, xs)|\\
+      |length (x:xs) = q2 . (p1(x, xs), (avg(p2(x,xs)), (length(p2(x,xs))))) |
+    \end{lcbr}
+  \end{lcbr}
+%
+\just\equiv{ Def-proj ; avg[x] = x; length[x] = 1; length(x:xs) = succ . length(xs); Def-avg}
+% 
+  \begin{lcbr}
+    \begin{lcbr}
+      |x = b1| \\
+      |((x + length * avg(xs)) / (length + 1)) = q1(x, (avg(xs), (length(xs)))) | 
+    \end{lcbr} \\
+    \begin{lcbr}
+      |1 = q1|\\
+      |succ . length(xs) = q2 (x, (avg(xs), (length(xs))))  |
+    \end{lcbr}
+  \end{lcbr}
+%
+\just\equiv{Simplificação}
+%
+  \begin{lcbr}
+    \begin{lcbr}
+      |b1 = id| \\
+      |q1(x, (avg(xs), (length(xs)))) = ((x + length(xs) * avg(xs)) / (length(xs) + 1))|
+    \end{lcbr} \\
+    \begin{lcbr}
+      |b2 = 1|\\
+      |q2 = succ . p2. p2|
+    \end{lcbr}
+  \end{lcbr}
+\qed
+\end{eqnarray*}
+
+Substindo os valores na expressão inicial e para código Haskell temos:
+
 
 
 \begin{code}
@@ -1219,6 +1310,75 @@ avg_aux = cataL_ex4 gene where
 
 
 Solução para árvores de tipo \LTree:
+
+\begin{eqnarray*}
+\start
+    |avg_aux = cata(either b q)|
+%
+\just\equiv{ |avg_aux:= split avg length; b = split b1 b2; q = split q1 q2| }
+%
+  |aplit avg length = cata (either (split b1 b2) (split q1 q2))|
+%
+\just\equiv{ Lei da troca }
+%
+  |split avg length = cata (split (either b1 q1) (either b2 q2))|
+%
+\just\equiv{ Fokkinga }
+%
+  \begin{lcbr}
+    |f . in = (either b1 q1) . (split f g)|\\
+    |g . in = (either b2 q2) . (split f g)|
+  \end{lcbr}
+%
+\just\equiv{ |in| := |either Leaf Fork|; |F f| := id + f² }
+%
+  \begin{lcbr}
+    |avg . (either Leaf Fork) = (either b1 q1) . (id + (split avg length) >< (split avg length))|\\
+    |length . (either Leaf Fork) = (either b2 q2) . (id + (split avg length) >< (split avg length))|
+  \end{lcbr}
+%
+\just\equiv{ Fusão - + ; Absorção - +; Natural -id; Eq - +}
+%
+  \begin{lcbr}
+    \begin{lcbr}
+      |avg . Leaf = b1| \\
+      |avg . Fork = q1 . ((split avg length) >< (split avg length))| 
+    \end{lcbr} \\
+    \begin{lcbr}
+      |length . Leaf = b2|\\
+      |length . Fork = q2 . ((split avg length) >< (split avg length))|
+    \end{lcbr}
+  \end{lcbr}  
+% 
+\just\equiv{ Introdução de variáveis; Def-comp; Def-x; Def-split}
+%
+  \begin{lcbr}
+    \begin{lcbr}
+      |avg(Leaf(x)) = b1(x)| \\
+      |avg(Fork((x,xs),(y,ys))) = q1((avg(x,xs),length(x,xs)), (avg(y,ys),length(y,ys)))| 
+    \end{lcbr} \\
+    \begin{lcbr}
+      |length(Leaf(x)) = b2(x)| \\
+      |length(Fork((x,xs),(y,ys))) = q2((avg(x,xs),length(x,xs)), (avg(y,ys),length(y,ys)))| 
+    \end{lcbr}
+  \end{lcbr}  
+%
+\just\equiv{Def-avg; Def-length; Simplificação}
+% 
+  \begin{lcbr}
+    \begin{lcbr}
+      |b1 = x| \\
+      |q1((a1,a2), (b1,b2)) = (a1 * a2 + b1 * b2) /(a2 + b2) | 
+    \end{lcbr} \\
+    \begin{lcbr}
+      |b2 = 1| \\
+      |q2 = uncurry (+) . split (p2 . p1) (p2 . p2) | 
+    \end{lcbr}
+  \end{lcbr}  
+%
+\end{eqnarray*}
+
+Substindo os valores na expressão inicial e para código Haskell temos:
 
 
 \begin{code}
