@@ -1016,6 +1016,72 @@ ad :: Floating a => a -> ExpAr a -> a
 ad v = p2 . cataExpAr (ad_gen v)
 \end{code}
 
+
+\begin{eqnarray*}
+\start
+	|outExpAr . inExpAr = id|
+%
+\just\equiv{ |inExpAr|:= |[const X, num_ops]| }
+%
+  |outExpAr . [const X, num_ops] = id|
+%
+\just\equiv{ Fusão-+(20) \& Functor-id(26) }
+%
+  |[outExpAr . const X, outExpAr . num_ops] = [i_1,i_2]|
+%
+\just\equiv{ |num_ops|:= |[N,ops]| \& |ops|:= |[bin,uncurry Un]| \& Eq-+(27) }
+%
+  \begin{lcbr}
+    |outExpAr . const X = i_1|\\
+    |outExpAr . [N,[bin,uncurry Un]] = i_2|
+  \end{lcbr}
+%
+\just\equiv{ Fusão-+(20) }
+%
+  \begin{lcbr}
+    |outExpAr . const X = i_1|\\
+    |[outExpAr . N, outExpAr . [bin,uncurry Un]] = i_2|
+  \end{lcbr}
+%
+\just\equiv{ Universal-+(17) }
+%
+  \begin{lcbr}
+    |outExpAr . const X = i_1|\\
+    \begin{lcbr}
+      |outExpAr . N = i_2 . i_1|\\
+      |outExpAr . [bin,uncurry Un] = i_2 .i_2|
+    \end{lcbr}
+  \end{lcbr}
+%
+\just\equiv{ Fusão-+(20) \& Universal-+(17) }
+%
+  \begin{lcbr}
+    |outExpAr . const X = i_1|\\
+    \begin{lcbr}
+      |outExpAr . N = i_2 . i_1|\\
+      \begin{lcbr}
+        |outExpAr . bin = i_2 . i_2 . i_1|\\
+        |outExpAr . uncurry Un = i_2 . i_2 .i_2|
+      \end{lcbr}
+    \end{lcbr}
+  \end{lcbr}  
+%
+\just\equiv{ Def-comp(72) \& Introdução de variáveis }
+% 
+  \begin{lcbr}
+    |outExpAr(const X ()) = i_1()|\\
+    \begin{lcbr}
+      |outExpAr(N (a)) = i_2(i_1(a))|\\
+      \begin{lcbr}
+        |outExpAr(bin(op,(a,b))) = i_2(i_2(i_1(op,(a,b))))|\\
+        |outExpAr(uncurry Un(op,a)) = i_2(i_2(i_2(op,a)))|
+      \end{lcbr}
+    \end{lcbr}
+  \end{lcbr}  
+\qed
+\end{eqnarray*}
+
+
 \begin{code}
 
 outExpAr X = i1()    
@@ -1419,6 +1485,8 @@ gene = either (split id (const 1)) (split aux_split f) where
 \subsection*{Problema 5}
 Inserir em baixo o código \Fsharp\ desenvolvido, entre \verb!\begin{verbatim}! e \verb!\end{verbatim}!:
 
+\begin{verbatim}
+
 module BTree
 
 open Cp
@@ -1587,7 +1655,6 @@ let depthBTree x = (p2 << baldepth) x
 //
 //-------------------------- end of library ----------------------------------
 
-\begin{verbatim}
 \end{verbatim}
 
 %----------------- Fim do anexo com soluções dos alunos ------------------------%
