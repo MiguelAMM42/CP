@@ -1016,6 +1016,9 @@ ad :: Floating a => a -> ExpAr a -> a
 ad v = p2 . cataExpAr (ad_gen v)
 \end{code}
 
+\subsubsection{Alínea 1} \label{pg:P1.1}
+
+Para resolver esta alínea, podemos começar por inferir o |outExpAr| através da propriedade do isomorfismo:
 
 \begin{eqnarray*}
 \start
@@ -1081,6 +1084,14 @@ ad v = p2 . cataExpAr (ad_gen v)
 \qed
 \end{eqnarray*}
 
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Nat0|
+&
+    |1 + Nat0|
+           \ar[l]_-{|inNat|}
+}
+\end{eqnarray*}
 
 \begin{code}
 
@@ -1092,11 +1103,49 @@ outExpAr (Un op a) = i2(i2(i2(op,a)))
 \end{code}
 
 
+Tanto no enunciado deste projeto como nas aulas os docentes iam-nos alertando para a importância de ler e analisar código. Na resolução deste exercício acabamos por perceber
+essa importância, pois a análise do código do anexo \ref{sec:codigo} e/ou dos ficheiros da pasta \emph{src} mostraram-se essenciais na resolução dos problemas do projeto.
+No caso desta segunda alínea do problema 1, depois de percebermos o funcionamento da função |baseExpAr| fornecida, o ficheiro \emph{List.hs} ajudou bastante na resolução deste
+exercício.\\
+
+Ao olharmos para a função |baseExpAr| percebemos que a mesma necessita de 7 argumentos. Acabamos por perceber que 7 argumentos eram estes ao interpretar o código da \emph{recList}.\\
+
+Sendo o \emph{recList} o \emph{F f} das listas, fizemos a analogia para esta alínea, tendo em conta o \emph{outExpAr} definido na alínea anterior, uma vez que este gene só será executado depois dele.\\
+
+Tendo em conta que |N a| representa um certo número e |X| uma variável, estes dois casos poderiam ser considerados como casos de paragem, uma vez que não são mais simplificáveis. 
+Estas podem portanto ser do tipo |id|, fazendo aqui uma analogia clara com o caso de paragem das listas.  
+Porém, nos outros 2 casos, a expressão pode necessitar de mais simplificações. No caso da |Un UnOp (ExpAr a)| só a |ExpAr| precisa de ser simplificada, ficando com o tipo |id >< f|, tal como acontecia, aliás,
+no caso das listas.
+Já na expressão com o operador binário, é necessário simplificar mais uma expressão do que no caso anterior, ficando, portanto, com o tipo |id >< (f >< f)|.\\
+
+Relembrando a definição da função |baseExpAr|, que a a |recExpAr| invoca:\\
+
+|baseExpAr f g h j k l z = f + (g + (h >< (j >< k) + l >< z))|\\
+
+podemos facilmente atribuir valores a |f|,|g|,|h|,|j|,|k|,|l| e |z|:\\
+
+\begin{itemize}
+\item |f| é |id| e representa a |X|.
+\item |g| é |id| e representa a |N a|.
+\item |h >< (j >< k)|  é |id >< (f >< f)| e representa a |Bin BinOp (ExpAr a) (ExpAr a)|.\\
+|h| é, portanto, |id|, |j| e |k| são |f|.
+\item Por último, a expressão unária |Un UnOp (ExpAr a)| é representada por |l >< z|, ou seja, |id >< f|.\\
+\end{itemize}
+
+\\A expressão final pretendida é |id + (id + (id >< (f >< f) + id >< f))|, que é facilmente inserida na função |baseExpAr| com as conclusões enumeradas em cima.
+\\Temos, assim, reunidas as condições para afirmar que:\\
+
 \begin{code}
 
 recExpAr f =  baseExpAr id id id f f id f
 
 \end{code}
+
+\subsubsection{Alínea 2} \label{pg:P1.2}
+
+Para a resolução desta alínea consideramos que o gene deveria simplificar expressões, aplicando as propriedades das expressões que as mesmas representam.\\
+O gene deve ter, portanto, 2 argumentos: os mesmos 2 da |eval_exp|. São estes: um |Floating a| e uma expressão aritmética.\\
+Assim sendo, teremos 4 casos, estando os casos das operações binárias e unárias divididos em 2 subcasos:
 
 \begin{code}
 
@@ -1111,17 +1160,33 @@ g_eval_exp x (Right(Right(Right (op, a))))
 
 \end{code}
 
+\subsubsection{Alínea 3} \label{pg:P1.3}
+
+A Simplificação das expressões é feita na função |clean|, cujo o nome sugestivo indicava que seria aqui que a expressão seria de facto simplificada.
+Por outro lado, a função |gopt| poderia reaproveitar o código da alínea anterior(da função |g_eval_exp|), visto que esta função já tem definido o procedimento para simplificar expressões e só é corrida depois da |clean|.
+Deste modo estariamos a efetuar cálculos somente se a |clean| não tivesse tirado já proveito dos elementos absorventes das operações.\\
+E que elementos podem ser estes?\\
+No nosso caso identificamos 2 bastante conhecidos das propriedades matemáticas:\\
+
+\begin{itemize}
+\item No caso da operação binária da multiplicação, sabe-se que que qualquer valor/expressão multiplicad por 0(no caso do exercício |N 0|) resulta em 0.\\
+\item No caso da operação unária do exponencial de base \emph{e}, sabemos que se o número de Euler/Nepper estiver elevado a 0, ou seja no caso deste exercício, a |N 0|,
+terá como resultado o valor 1.
+\end{itemize}
+
+
+Temos, assim, reunidas as condições para afirmar que a |clean| de uma |ExpAr| pode ser dada por:\\
+
 \begin{code}
 
-clean X = i1()    
-clean (N a) = i2(i1 a)
-clean (Bin op a b) | (op == Product) && ( a == N 0 || b == N 0) = i2(i1 0)
-                   | otherwise = i2(i2(i1(op,(a,b))))
-clean (Un op a) | (op == E) && (a == N 0) = i2(i1 1)
-                | otherwise = i2(i2(i2(op,a)))
+clean (Bin Product (N 0) b) = i2(i1 0)
+clean (Bin Product a (N 0)) = i2(i1 0)
+clean (Un E (N 0)) = i2(i1 1)
+clean exp = outExpAr exp
 
 \end{code}
 
+A |gopt|, como foi referido, tira aproveitamento da definição da |g_eval_exp|:\\
 
 \begin{code}
 
@@ -1129,10 +1194,24 @@ gopt x = g_eval_exp x
 
 \end{code}
 
+
+\subsubsection{Alínea 4} \label{pg:P1.4}
+
+
+Na resolução desta alínea, o mais importante foi perceber como é que, começando da expressão aritmética, poderiamos chegar ao par de |ExpAr|'s pretendido.\\
+
+Ora, para tal é também essencial compreender que a regra da derivada do produto de 2 funções não só necessita da derivada de uma função como também necessita da 
+função em si.\\
+
+Analisando código, também isso uma parte essencial deste trabalho, podemos concluir que este gene verá o segundo elemento do par a ser selecionado pelo |p2| na 
+assinatura da função |sd|. Visto que o objetivo da função |sd| é calcular a derivada, podemos definir o seu gene como uma função que devolve o valor da função como primeiro
+elemento do par e o valor da derivada no segundo elemento do par.
+
 \begin{code}
 
 sd_gen :: Floating a =>
-    Either () (Either a (Either (BinOp, ((ExpAr a, ExpAr a), (ExpAr a, ExpAr a))) (UnOp, (ExpAr a, ExpAr a)))) -> (ExpAr a, ExpAr a)
+    Either () (Either a (Either (BinOp, ((ExpAr a, ExpAr a), (ExpAr a, ExpAr a))) (UnOp, (ExpAr a, ExpAr a)))) 
+    -> (ExpAr a, ExpAr a)
 sd_gen  (Left()) = (X, (N 1))
 sd_gen  (Right(Left a)) = ((N a), (N 0))
 sd_gen  (Right (Right (Left (Sum, (a, b))))) = (Bin Sum (p1 a) (p1 b), Bin Sum (p2 a) (p2 b))
@@ -1143,6 +1222,10 @@ sd_gen (Right (Right (Right (E, a)))) = ( Un E (p1 a) , Bin Product (Un E (p1 a)
 sd_gen (Right (Right (Right (Negate, a)))) = (Un Negate (p1 a), Un Negate (p2 a))
 
 \end{code}
+
+\subsubsection{Alínea 5} \label{pg:P1.5}
+
+
 
 \begin{code}
 ad_gen pnt (Left()) = (pnt , 1)
@@ -1155,8 +1238,6 @@ ad_gen pnt (Right(Right(Right (Negate, a)))) = (- (p1 a), -(p2 a))
 \end{code}
 
 \subsection*{Problema 2}
-Definir
-
 
 Primeiramente, vamos tentar buscar uma relação entre o \emph{n}-ésimo valor de Catalon e o seu (\emph{n+1})-ésimo valor: \\
 \begin{flalign}
@@ -1204,8 +1285,6 @@ cat = prj . (for loop inic)
 
 \end{code}
 seja a função pretendida.
-\textbf{NB}: usar divisão inteira.
-Apresentar de seguida a justificação da solução encontrada.
 
 \subsection*{Problema 3}
 
