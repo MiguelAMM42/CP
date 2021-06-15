@@ -1030,41 +1030,41 @@ Para resolver esta alínea, podemos começar por inferir o |outExpAr| através d
 %
 \just\equiv{ Fusão-+(20) \& Functor-id(26) }
 %
-  |[outExpAr . const X, outExpAr . num_ops] = [i_1,i_2]|
+  |[outExpAr . const X, outExpAr . num_ops] = [i1,i2]|
 %
 \just\equiv{ |num_ops|:= |[N,ops]| \& |ops|:= |[bin,uncurry Un]| \& Eq-+(27) }
 %
   \begin{lcbr}
-    |outExpAr . const X = i_1|\\
-    |outExpAr . [N,[bin,uncurry Un]] = i_2|
+    |outExpAr . const X = i1|\\
+    |outExpAr . [N,[bin,uncurry Un]] = i2|
   \end{lcbr}
 %
 \just\equiv{ Fusão-+(20) }
 %
   \begin{lcbr}
-    |outExpAr . const X = i_1|\\
-    |[outExpAr . N, outExpAr . [bin,uncurry Un]] = i_2|
+    |outExpAr . const X = i1|\\
+    |[outExpAr . N, outExpAr . [bin,uncurry Un]] = i2|
   \end{lcbr}
 %
 \just\equiv{ Universal-+(17) }
 %
   \begin{lcbr}
-    |outExpAr . const X = i_1|\\
+    |outExpAr . const X = i1|\\
     \begin{lcbr}
-      |outExpAr . N = i_2 . i_1|\\
-      |outExpAr . [bin,uncurry Un] = i_2 .i_2|
+      |outExpAr . N = i2 . i1|\\
+      |outExpAr . [bin,uncurry Un] = i2 .i2|
     \end{lcbr}
   \end{lcbr}
 %
 \just\equiv{ Fusão-+(20) \& Universal-+(17) }
 %
   \begin{lcbr}
-    |outExpAr . const X = i_1|\\
+    |outExpAr . const X = i1|\\
     \begin{lcbr}
-      |outExpAr . N = i_2 . i_1|\\
+      |outExpAr . N = i2 . i1|\\
       \begin{lcbr}
-        |outExpAr . bin = i_2 . i_2 . i_1|\\
-        |outExpAr . uncurry Un = i_2 . i_2 .i_2|
+        |outExpAr . bin = i2 . i2 . i1|\\
+        |outExpAr . uncurry Un = i2 . i2 .i2|
       \end{lcbr}
     \end{lcbr}
   \end{lcbr}  
@@ -1072,12 +1072,12 @@ Para resolver esta alínea, podemos começar por inferir o |outExpAr| através d
 \just\equiv{ Def-comp(72) \& Introdução de variáveis }
 % 
   \begin{lcbr}
-    |outExpAr(const X ()) = i_1()|\\
+    |outExpAr(const X ()) = i1()|\\
     \begin{lcbr}
-      |outExpAr(N (a)) = i_2(i_1(a))|\\
+      |outExpAr(N (a)) = i2(i1(a))|\\
       \begin{lcbr}
-        |outExpAr(bin(op,(a,b))) = i_2(i_2(i_1(op,(a,b))))|\\
-        |outExpAr(uncurry Un(op,a)) = i_2(i_2(i_2(op,a)))|
+        |outExpAr(bin(op,(a,b))) = i2(i2(i1(op,(a,b))))|\\
+        |outExpAr(uncurry Un(op,a)) = i2(i2(i2(op,a)))|
       \end{lcbr}
     \end{lcbr}
   \end{lcbr}  
@@ -1085,11 +1085,11 @@ Para resolver esta alínea, podemos começar por inferir o |outExpAr| através d
 \end{eqnarray*}
 
 \begin{eqnarray*}
-\xymatrix@@C=6cm{
-    |ExpAr| 
+\xymatrix@@C=3.1cm{
+    |ExpAr A| 
            \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
 &
-    |1 + 1 + (1 >< ExpAr >< ExpAr) + (1 >< ExpAr)|
+    |1 + ( A + ((BinOp >< (ExpAr A >< ExpAr A)) + (UnOp >< ExpAr A)))|
            \ar@@/^1.005pc/[l]^-{|inExpAr|}    
 }
 \end{eqnarray*}
@@ -1143,25 +1143,26 @@ recExpAr x =  baseExpAr id id id x x id x
 
 \end{code}
 
-Temos agora reunidas as condições, tendo ainda em conta a assinatura da |cataExpAr|, para afirmar que o diagrama do catamorfismo deste
+\subsubsection{Alínea 2} \label{pg:P1.2}
+
+Temos agora reunidas as condições, com a informação recolhida na alínea 1 e tendo ainda em conta a assinatura da |cataExpAr|, para afirmar que o diagrama do catamorfismo deste
 problema pode ser expresso por:
 
-\xymatrix@@C=6cm{
-    |ExpAr| 
+\xymatrix@@C=4cm{
+    |ExpAr A| 
            \ar[d]_-{|cata (f)|}      
            \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
 &
-    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|
+    |1 + ( A + ((BinOp >< (ExpAr A >< ExpAr A)) + (UnOp >< ExpAr A)))|
            \ar@@/^1.005pc/[l]^-{|inExpAr|}    
            \ar[d]^{|recExpAr| |cata (f)|}   
 \\
      |Rational|
 &
-     |1 + (1 + (1 >< (Rational >< Rational) + 1 >< Rational)))|
-           \ar[l]^-{|f = g_eval_exp|}
+     |1 + ( A + ((BinOp >< (Rational >< Rational)) + (UnOp >< Rational)))|
+           \ar[l]^-{|f = g_eval_exp a|}
 }
 
-\subsubsection{Alínea 2} \label{pg:P1.2}
 
 Para a resolução desta alínea consideramos que o gene deveria simplificar expressões, aplicando as propriedades das expressões que as mesmas representam.\\
 O gene deve ter, portanto, 2 argumentos: os mesmos 2 da |eval_exp|. São estes: um |Floating a| e uma expressão aritmética.\\
@@ -1218,28 +1219,30 @@ gopt x = g_eval_exp x
 
 Podemos também representar todo o hilomorfismo concebido com o diagrama  que se segue:\\
 
-\xymatrix@@C=4cm{
+|j| representa |optmize_eval a|\\ \\
+
+\xymatrix@@C=2.5cm{
      |Rational|
 &
-     |1 + (1 + (1 >< (Rational >< Rational) + 1 >< Rational)))|
-           \ar[l]_-{|g = gopt|}
+     |1 + ( A + ((BinOp >< (Rational >< Rational)) + (UnOp >< Rational)))|
+           \ar[l]_-{|g = gopt a|}
 \\
-    |ExpAr| 
+    |ExpAr A| 
            \ar[u]^-{|cata (g)|}      
            \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
 &
-    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|
+    |1 + ( A + ((BinOp >< (ExpAr A >< ExpAr A)) + (UnOp >< ExpAr A)))|
            \ar@@/^1.005pc/[l]^-{|inExpAr|}    
            \ar[u]_{|recExpAr| |cata (g)|} 
 \\
-    |ExpAr| 
+    |ExpAr A| 
            \ar[u]^-{\ana{h}}      
-           \ar[r]_-{|h = clean|}
-           \ar@@/^2.8pc/[uu]^-{|optimize_eval|} 
+           \ar[r]_-{|h = clean a|}
+           \ar@@/^2.8pc/[uu]^-{|j|} 
 &
-    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|              
+    |1 + ( A + ((BinOp >< (ExpAr A >< ExpAr A)) + (UnOp >< ExpAr A)))|              
            \ar[u]_{|recExpAr| \ana{h}} 
-           \ar@@/^-8.8pc/[uu]_-{|F optimize_eval|}
+           \ar@@/^-13.5pc/[uu]_-{|F j|}
 }
 
 Relembrando agora a questão deixada no enunciado:\\
@@ -1281,19 +1284,22 @@ sd_gen (Right (Right (Right (Negate, a)))) = (Un Negate (p1 a), Un Negate (p2 a)
 
 O catamorfismo pode ser representado pelo seguinte diagrama:\\
 
+Nota: |C| representa uma |ExpAr|.
+
+
 \xymatrix@@C=2.5cm{
-    |ExpAr| 
+    |C| 
            \ar[d]_-{|cata (f)|}      
            \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
 &
-    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|
+    |1 + ( A + ((BinOp >< (C >< C)) + (UnOp >< C)))|
            \ar@@/^1.005pc/[l]^-{|inExpAr|}    
            \ar[d]^{|recExpAr| |cata (f)|}  
 \\
-     |(ExpAr,ExpAr)|
+     |(C,C)|
 &
-     |1 + (1 + (1 >< ((ExpAr,ExpAr) >< (ExpAr,ExpAr)) + 1 >< (ExpAr,ExpAr))))|
-           \ar[l]^-{|f = sd_gen|}
+     |1 + ( A + ((BinOp >< ((C,C) >< (C,C))) + (UnOp >< (C,C))))| 
+           \ar[l]^-{|f = sd_gen c|}
 }
 
 
@@ -1316,19 +1322,19 @@ ad_gen pnt (Right(Right(Right (Negate, a)))) = (- (p1 a), -(p2 a))
 
 O catamorfismo pode ser representado pelo seguinte diagrama:
 
-\xymatrix@@C=4cm{
-    |ExpAr| 
+\xymatrix@@C=2.5cm{
+    |ExpAr A| 
            \ar[d]_-{|cata (f)|}      
            \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
 &
-    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|
+    |1 + ( A + ((BinOp >< (ExpAr A >< ExpAr A)) + (UnOp >< ExpAr A)))|
            \ar@@/^1.005pc/[l]^-{|inExpAr|}    
            \ar[d]^{|recExpAr| |cata (f)|}   
 \\
      |(Rational,Rational)|
 &
-     |1 + (1 + (1 >< ((Rational,Rational) >< (Rational,Rational)) + 1 >< (Rational,Rational))))|
-           \ar[l]^-{|f = ad_gen|}
+     |1 + ( A + ((BinOp >< ((Rational,Rational) >< (Rational,Rational))) + (UnOp >< (Rational,Rational))))|
+           \ar[l]^-{|f = ad_gen a|}
 }
 
 \subsection*{Problema 2}
@@ -1406,12 +1412,13 @@ O catamorfismo pode, portanto, ser representado pelo seguinte diagrama:
            \ar@@/^1.005pc/[l]^-{|inList|}    
            \ar[d]^{|recList| |cata (f)|} 
 \\
-     |(Rational,Rational)|
+     |NPoint|
 &
      |1 + (Rational,Rational) >< (Rational,Rational)|
            \ar[l]^-{|f = h|}
 }
 
+A definição da função segue o raciocínio, tirando proveito deste diagrama e da definição dos anexos:
 
 \begin{code}
 
@@ -1420,9 +1427,38 @@ calcLine p q d = (cataList h) $ (zip p q) where
     h (Left()) = []
     h (Right((a1,a2), t)) = (++) (singl $ (linear1d a1 a2 d)) t
 
+
 \end{code}
 
 \subsubsection{Alínea 2} \label{pg:P3.2}
+
+\quad hilomorfismo
+
+\xymatrix@@C=4cm{
+     |NPoint|
+&
+     |NPoint + NPoint >< NPoint |
+           \ar[l]_-{|g = alg|}
+\\
+    |NPoint >< NPoint|^{*}
+           \ar[u]^-{|cata (g)|}      
+           \ar@@/^1.005pc/[r]^-{|outLTree|} _-\cong
+&
+    |NPoint + (NPoint >< NPoint|^{*})^{2}
+           \ar@@/^1.005pc/[l]^-{|inLTree|}    
+           \ar[u]_{|recLTree| |cata (g)|} 
+\\
+    |NPoint|^{*}
+           \ar[u]^-{\ana{h}}      
+           \ar[r]_-{|h = coalg|}
+           \ar@@/^4.8pc/[uu]^-{|deCasteljau|} 
+&
+    |NPoint + NPoint|^{*} |>< NPoint|^{*}            
+           \ar[u]_{|recLTree| \ana{h}} 
+           \ar@@/^-6.8pc/[uu]_-{|F deCasteljau|}
+}
+
+Inferimos, assim, a seguinte definição da função |deCasteljau|:\\\\\\\\
 
 
 \begin{code}
@@ -1436,6 +1472,16 @@ deCasteljau list time = hyloAlgForm alg coalg list where
           q = tail list
       alg (Left a)  = a
       alg (Right(p,q))  = calcLine p q time
+
+
+coalgo [] = i1 []
+coalgo [a] = i1 a
+coalgo list = i2 (p,q) where
+          p = init list
+          q = tail list
+
+algo (Left a)  = a
+algo (Right(p,q))  = calcLine p q 1
 
 \end{code}
 
