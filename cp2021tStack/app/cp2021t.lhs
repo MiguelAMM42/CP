@@ -1085,13 +1085,15 @@ Para resolver esta alínea, podemos começar por inferir o |outExpAr| através d
 \end{eqnarray*}
 
 \begin{eqnarray*}
-\xymatrix@@C=2cm{
-    |Nat0|
+\xymatrix@@C=6cm{
+    |ExpAr| 
+           \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
 &
-    |1 + Nat0|
-           \ar[l]_-{|inNat|}
+    |1 + 1 + (1 >< ExpAr >< ExpAr) + (1 >< ExpAr)|
+           \ar@@/^1.005pc/[l]^-{|inExpAr|}    
 }
 \end{eqnarray*}
+
 
 \begin{code}
 
@@ -1137,9 +1139,27 @@ podemos facilmente atribuir valores a |f|,|g|,|h|,|j|,|k|,|l| e |z|:\\
 
 \begin{code}
 
-recExpAr f =  baseExpAr id id id f f id f
+recExpAr x =  baseExpAr id id id x x id x
 
 \end{code}
+
+Temos agora reunidas as condições, tendo ainda em conta a assinatura da |cataExpAr|, para afirmar que o diagrama do catamorfismo deste
+problema pode ser expresso por:
+
+\xymatrix@@C=6cm{
+    |ExpAr| 
+           \ar[d]_-{|cata (f)|}      
+           \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
+&
+    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|
+           \ar@@/^1.005pc/[l]^-{|inExpAr|}    
+           \ar[d]^{|recExpAr| |cata (f)|}   
+\\
+     |Rational|
+&
+     |1 + (1 + (1 >< (Rational >< Rational) + 1 >< Rational)))|
+           \ar[l]^-{|f = g_eval_exp|}
+}
 
 \subsubsection{Alínea 2} \label{pg:P1.2}
 
@@ -1162,9 +1182,11 @@ g_eval_exp x (Right(Right(Right (op, a))))
 
 \subsubsection{Alínea 3} \label{pg:P1.3}
 
-A Simplificação das expressões é feita na função |clean|, cujo o nome sugestivo indicava que seria aqui que a expressão seria de facto simplificada.
+A Simplificação das expressões é feita na função |clean|, cujo o nome sugestivo indicava que seria aqui que a expressão seria de facto simplificada. Podemos, desde já, também inferir que esta será
+a parte \emph{divide} do nosso hilomorfismo.
 Por outro lado, a função |gopt| poderia reaproveitar o código da alínea anterior(da função |g_eval_exp|), visto que esta função já tem definido o procedimento para simplificar expressões e só é corrida depois da |clean|.
 Deste modo estariamos a efetuar cálculos somente se a |clean| não tivesse tirado já proveito dos elementos absorventes das operações.\\
+Temos, então, que a função |gopt| representa o \emph{conquer} do hilomorfismo.\\
 E que elementos podem ser estes?\\
 No nosso caso identificamos 2 bastante conhecidos das propriedades matemáticas:\\
 
@@ -1175,7 +1197,7 @@ terá como resultado o valor 1.
 \end{itemize}
 
 
-Temos, assim, reunidas as condições para afirmar que a |clean| de uma |ExpAr| pode ser dada por:\\
+Temos, assim, reunidas as condições para afirmar que a |clean| de uma |ExpAr| pode ser dada por:
 
 \begin{code}
 
@@ -1186,7 +1208,7 @@ clean exp = outExpAr exp
 
 \end{code}
 
-A |gopt|, como foi referido, tira aproveitamento da definição da |g_eval_exp|:\\
+A |gopt|, como foi referido, tira aproveitamento da definição da |g_eval_exp|:
 
 \begin{code}
 
@@ -1194,18 +1216,52 @@ gopt x = g_eval_exp x
 
 \end{code}
 
+Podemos também representar todo o hilomorfismo concebido com o diagrama  que se segue:\\
+
+\xymatrix@@C=4cm{
+     |Rational|
+&
+     |1 + (1 + (1 >< (Rational >< Rational) + 1 >< Rational)))|
+           \ar[l]_-{|g = gopt|}
+\\
+    |ExpAr| 
+           \ar[u]^-{|cata (g)|}      
+           \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
+&
+    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|
+           \ar@@/^1.005pc/[l]^-{|inExpAr|}    
+           \ar[u]_{|recExpAr| |cata (g)|} 
+\\
+    |ExpAr| 
+           \ar[u]^-{\ana{h}}      
+           \ar[r]_-{|h = clean|}
+           \ar@@/^2.8pc/[uu]^-{|optimize_eval|} 
+&
+    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|              
+           \ar[u]_{|recExpAr| \ana{h}} 
+           \ar@@/^-8.8pc/[uu]_-{|F optimize_eval|}
+}
+
+Relembrando agora a questão deixada no enunciado:\\
+\textbf{Qual é a vantagem de implementar a função |optimize_eval| utilizando um hilomorfismo 
+em vez de utilizar um catamorfismo com um gene "inteligente"?}
+Esta pergunta pode ser respondida comparando a alínea 2 e 3 do problema. Na primeira o gene do catamorfismo apenas simplifica
+uma expressão aritmética - Por exemplo, |Bin Product a b| passa a |a * b|. Porém na segunda esta simplificação efetuada pelo gene do
+catamorfismo apenas será feita se, previamente, o anamorfismo não tiver tirado proveito dos elementos absorventes de algumas operações:
+|Bin Product 0 b| não passa a |0 * b|, mas adquire diretamente o seu resultado final: 0.\\
+
 
 \subsubsection{Alínea 4} \label{pg:P1.4}
 
-
-Na resolução desta alínea, o mais importante foi perceber como é que, começando da expressão aritmética, poderiamos chegar ao par de |ExpAr|'s pretendido.\\
+\quad Na resolução desta alínea, o mais importante foi perceber como é que, começando da expressão aritmética, poderiamos chegar ao par de |ExpAr|'s pretendido.\\
 
 Ora, para tal é também essencial compreender que a regra da derivada do produto de 2 funções não só necessita da derivada de uma função como também necessita da 
 função em si.\\
 
-Analisando código, também isso uma parte essencial deste trabalho, podemos concluir que este gene verá o segundo elemento do par a ser selecionado pelo |p2| na 
-assinatura da função |sd|. Visto que o objetivo da função |sd| é calcular a derivada, podemos definir o seu gene como uma função que devolve o valor da função como primeiro
-elemento do par e o valor da derivada no segundo elemento do par.
+Analisando código, também isso uma parte essencial deste trabalho, podemos concluir que este gene terá o seu segundo elemento do par a ser selecionado pelo |p2| na 
+assinatura da função |sd|. Visto que o objetivo da função |sd| é calcular a derivada, podemos definir o seu gene como uma função que devolve o valor da expressão como primeiro
+elemento do par e o valor da derivada no segundo elemento do par(o valor desejado). O primeiro elemento do par é essecial para poder aplicar
+corretamente a lei do produto.\\
 
 \begin{code}
 
@@ -1223,11 +1279,32 @@ sd_gen (Right (Right (Right (Negate, a)))) = (Un Negate (p1 a), Un Negate (p2 a)
 
 \end{code}
 
+O catamorfismo pode ser representado pelo seguinte diagrama:\\
+
+\xymatrix@@C=2.5cm{
+    |ExpAr| 
+           \ar[d]_-{|cata (f)|}      
+           \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
+&
+    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|
+           \ar@@/^1.005pc/[l]^-{|inExpAr|}    
+           \ar[d]^{|recExpAr| |cata (f)|}  
+\\
+     |(ExpAr,ExpAr)|
+&
+     |1 + (1 + (1 >< ((ExpAr,ExpAr) >< (ExpAr,ExpAr)) + 1 >< (ExpAr,ExpAr))))|
+           \ar[l]^-{|f = sd_gen|}
+}
+
+
 \subsubsection{Alínea 5} \label{pg:P1.5}
 
-
+\quad Este gene será bastante idêntico ao anterior, mas desta vez, tal como é dito no enunciado, ao invés de se manipular a expressão, 
+esta será efetivamente calculada. O primeiro elemento do par será o valor da expressão, o segundo elemento será o valor da 
+derivada da expressão.
 
 \begin{code}
+
 ad_gen pnt (Left()) = (pnt , 1)
 ad_gen pnt (Right(Left a)) = (a, 0)
 ad_gen pnt (Right(Right(Left (Sum, (a, b))))) = ((p1 a) + (p1 b) , (p2 a) + (p2 b) )
@@ -1237,9 +1314,27 @@ ad_gen pnt (Right(Right(Right (Negate, a)))) = (- (p1 a), -(p2 a))
 
 \end{code}
 
+O catamorfismo pode ser representado pelo seguinte diagrama:
+
+\xymatrix@@C=4cm{
+    |ExpAr| 
+           \ar[d]_-{|cata (f)|}      
+           \ar@@/^1.005pc/[r]^-{|outExpAr|} _-\cong
+&
+    |1 + (1 + (1 >< (ExpAr >< ExpAr) + 1 >< ExpAr))|
+           \ar@@/^1.005pc/[l]^-{|inExpAr|}    
+           \ar[d]^{|recExpAr| |cata (f)|}   
+\\
+     |(Rational,Rational)|
+&
+     |1 + (1 + (1 >< ((Rational,Rational) >< (Rational,Rational)) + 1 >< (Rational,Rational))))|
+           \ar[l]^-{|f = ad_gen|}
+}
+
 \subsection*{Problema 2}
 
-Primeiramente, vamos tentar buscar uma relação entre o \emph{n}-ésimo valor de Catalon e o seu (\emph{n+1})-ésimo valor: \\
+\quad Primeiramente, vamos tentar buscar uma relação entre o \emph{n}-ésimo valor de Catalon e o seu (\emph{n+1})-ésimo valor: \\
+
 \begin{flalign}
         &\ \cfrac{C_{n+1}}{C_n} = \cfrac{\frac{(2(\emph{n}+1))!}{(\emph{n} + 2)!(\emph{n}+1)!}} {\frac{(2\emph{n})!}{(\emph{n}+1)!(\emph{n})!}}\notag\\
         \equiv&\notag\\
@@ -1254,7 +1349,7 @@ Primeiramente, vamos tentar buscar uma relação entre o \emph{n}-ésimo valor d
         &\ \cfrac{C_{n+1}}{C_n} = \frac{4\emph{n}+2}{\emph{n}+2}\notag\\
         \equiv\notag&\\
         &C_{n+1} = \frac{4\emph{n}+2}{\emph{n}+2} C_n\notag&
-\end{flalign}
+\end{flalign}\\
 
 Tendo chegado a esta expressão, podemos agora dividir a equação entre 2 outras:\\
 
@@ -1269,6 +1364,7 @@ Tendo chegado a esta expressão, podemos agora dividir a equação entre 2 outra
 &den(\emph{n+1}) = (\emph{n}+3) = 1 + den(\emph{n})\notag&
 \end{flalign}
 \\
+
 Pela \emph{regra da algibeira}, teremos:
 
 \begin{code}
@@ -1288,6 +1384,35 @@ seja a função pretendida.
 
 \subsection*{Problema 3}
 
+\quad Em ambas as alíneas o procedimento inicial começou por ser a análise destas 2 funções tal como estão definidas nos anexos.
+
+\subsubsection{Alínea 1} \label{pg:P3.1}
+
+\quad No caso da |calcLine| não só foi importante analisar o código dos anexos, como também foi importante analisar o código da |prop_calcLine_def|.
+Nesta, podemos constatar que é feito um |zipWithM| para a comparação com aquela que será a nossa definição. Ou seja, as 2 listas de racionais(|NPoint|'s) são
+"zipadas" numa só e é aplicada a função |linear1d| com o respetivo \emph{time}.\\
+
+O referido anteriormente levou-nos a crer que seria boa ideia, antes de partirmos para o catamorfismo, fazer um zip das listas(|NPoint|'s) recebidas 
+de forma a posteriormente só ter de aplicar o catamorfismo a 1 lista, visto que não sabiamos se o podíamos fazer a 2 distintas.\\
+
+O catamorfismo pode, portanto, ser representado pelo seguinte diagrama:
+
+\xymatrix@@C=9cm{
+    |(Rational,Rational)|^{*}
+           \ar[d]_-{|cata (f)|}      
+           \ar@@/^1.005pc/[r]^-{|outList|} _-\cong
+&
+    |1 + (Rational,Rational) >< (Rational,Rational)|^{*}
+           \ar@@/^1.005pc/[l]^-{|inList|}    
+           \ar[d]^{|recList| |cata (f)|} 
+\\
+     |(Rational,Rational)|
+&
+     |1 + (Rational,Rational) >< (Rational,Rational)|
+           \ar[l]^-{|f = h|}
+}
+
+
 \begin{code}
 
 calcLine :: NPoint -> (NPoint -> OverTime NPoint)
@@ -1296,6 +1421,8 @@ calcLine p q d = (cataList h) $ (zip p q) where
     h (Right((a1,a2), t)) = (++) (singl $ (linear1d a1 a2 d)) t
 
 \end{code}
+
+\subsubsection{Alínea 2} \label{pg:P3.2}
 
 
 \begin{code}
@@ -1312,6 +1439,7 @@ deCasteljau list time = hyloAlgForm alg coalg list where
 
 \end{code}
 
+O hilomorfismo será o hilomorfismo das |LTree|'s
 
 \begin{code}
 hyloAlgForm  = hyloLTree     
